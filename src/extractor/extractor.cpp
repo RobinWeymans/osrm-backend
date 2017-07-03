@@ -266,6 +266,12 @@ std::vector<TurnRestriction> Extractor::ParseOSMData(ScriptingEnvironment &scrip
 
     std::mutex process_mutex;
 
+    std::unordered_map<std::string, util::CoordinateLocator> locators;
+    if (scripting_environment.GetProfileProperties().enable_way_coordinates)
+    {
+        locators["country"] = util::CoordinateLocator("test.geojson", "name");
+    }
+
     using SharedBuffer = std::shared_ptr<osmium::memory::Buffer>;
     struct ParsedBuffer
     {
@@ -296,6 +302,7 @@ std::vector<TurnRestriction> Extractor::ParseOSMData(ScriptingEnvironment &scrip
             parsed_buffer->buffer = buffer;
             scripting_environment.ProcessElements(*buffer,
                                                   restriction_parser,
+                                                  locators,
                                                   parsed_buffer->resulting_nodes,
                                                   parsed_buffer->resulting_ways,
                                                   parsed_buffer->resulting_restrictions);
