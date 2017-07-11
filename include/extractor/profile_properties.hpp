@@ -7,6 +7,7 @@
 #include <boost/assert.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <unordered_map>
+#include <vector>
 
 namespace osrm
 {
@@ -94,15 +95,13 @@ struct ProfileProperties
     // If true, way:nodes() objects will have :lon() and :lat() values populated in the way_function
     bool enable_way_coordinates = false;
 
-    using CountryName = std::string;
-
     struct RegionData
     {
         std::string filename;
-        std::string region_name_property;
+        std::vector<std::string> property_names;
     };
 
-    std::unordered_map<CountryName, RegionData> regions;
+    std::vector<RegionData> regions;
 };
 }
 }
