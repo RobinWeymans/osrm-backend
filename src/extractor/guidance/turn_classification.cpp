@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <mutex>
 
 namespace osrm
 {
@@ -12,7 +13,7 @@ namespace guidance
 {
 
 std::pair<util::guidance::EntryClass, util::guidance::BearingClass>
-classifyIntersection(Intersection intersection)
+classifyIntersection(Intersection intersection, osrm::util::Coordinate loc)
 {
     if (intersection.empty())
         return {};
@@ -56,7 +57,17 @@ classifyIntersection(Intersection intersection)
         for (const auto &road : intersection)
         {
             if (road.entry_allowed)
+            {
                 entry_class.activate(number);
+                static std::mutex mutex;
+                std::lock_guard<std::mutex> lock(mutex);
+                static std::uint32_t m = 0;
+                if (number > m)
+                {
+                    std::cout << "activated entry_class " << number << " at " << loc << "\n";
+                    m = number;
+                }
+            }
             auto discrete_bearing_class =
                 util::guidance::BearingClass::getDiscreteBearing(std::round(road.bearing));
             bearing_class.add(std::round(discrete_bearing_class *
